@@ -1,17 +1,5 @@
 import React from "react";
-
-const Button = (props) => {
-  const { children = "....", variant = "bg-black" } = props;
-
-  return (
-    <button
-      className={`h-10 px-6 font-semibold rounded-md ${variant} text-white`}
-      type="submit"
-    >
-      {children}
-    </button>
-  );
-};
+import Button from "./components/Elements/Button";
 
 function App() {
   return (
@@ -21,6 +9,7 @@ function App() {
         <Button variant="bg-red-700">Logout</Button>
         <Button>Register</Button>
         <Button></Button>
+        <Button variant="bg-green-700">Cancel</Button>
       </div>
     </div>
   );
