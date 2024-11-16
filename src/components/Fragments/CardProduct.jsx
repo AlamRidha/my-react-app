@@ -1,4 +1,4 @@
-import Button from "../Elements/Button";
+import Button from "../Elements/Button/Index";
 
 const CardProduct = (props) => {
   const { children } = props;
