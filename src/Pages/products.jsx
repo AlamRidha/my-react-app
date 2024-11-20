@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CardProduct from "../components/Fragments/CardProduct";
 import Button from "../components/Elements/Button/Index";
 
@@ -36,7 +36,8 @@ const ProductPage = () => {
   const [totalPrice, setTotalPrice] = useState(0);
 
   useEffect(() => {
-    setCart(JSON.parse(localStorage.getItem("cart") || []));
+    // setCart(JSON.parse(localStorage.getItem("cart")) || []);
+    setCart(JSON.parse(localStorage.getItem("cart")) || []);
   }, []);
 
   // melihat perubahan pada cart/ lifecycle update
@@ -69,6 +70,23 @@ const ProductPage = () => {
       setCart([...cart, { id, qty: 1 }]);
     }
   };
+
+  // useReff
+  const cartReff = useRef(JSON.parse(localStorage.getItem("cart")) || "[]");
+
+  const handleToCartRef = (id) => {
+    cartReff.current = [...cartReff.current, { id, qty: 1 }];
+    localStorage.setItem("cart", JSON.stringify(cartReff.current));
+  };
+
+  const totalPriceRef = useRef(null);
+  useEffect(() => {
+    if (cart.length > 0) {
+      totalPriceRef.current.style.display = "table-row";
+    } else {
+      totalPriceRef.current.style.display = "none";
+    }
+  }, [cart]);
 
   return (
     <>
@@ -133,7 +151,7 @@ const ProductPage = () => {
                   </tr>
                 );
               })}
-              <tr>
+              <tr ref={totalPriceRef}>
                 <td colSpan={3}>
                   <b>Total Price</b>
                 </td>
