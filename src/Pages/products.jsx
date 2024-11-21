@@ -2,19 +2,28 @@ import { useEffect, useRef, useState } from "react";
 import CardProduct from "../components/Fragments/CardProduct";
 import Button from "../components/Elements/Button/Index";
 import { getProducts } from "../services/product.service";
-
-const email = localStorage.getItem("email");
+import { getUsername } from "../services/auth.service";
 
 const ProductPage = () => {
   const [cart, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [products, setProducts] = useState([]);
+  const [username, setUserName] = useState("");
 
   // pemanggilan api
   useEffect(() => {
     getProducts((data) => {
       setProducts(data);
     });
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setUserName(getUsername(token));
+    } else {
+      window.location.href = "/login";
+    }
   }, []);
 
   useEffect(() => {
@@ -35,9 +44,7 @@ const ProductPage = () => {
   }, [cart, products]);
 
   const handleLogout = () => {
-    console.log("Button logout ditekan");
-    localStorage.removeItem("email");
-    localStorage.removeItem("password");
+    localStorage.removeItem("token");
     window.location.href = "/login";
   };
 
@@ -68,7 +75,7 @@ const ProductPage = () => {
   return (
     <>
       <div className="flex justify-end w-full h-16 bg-blue-400 text-white items-center px-10">
-        {email}
+        {username}
         <Button classname="ml-5 bg-black" onClick={handleLogout}>
           Logout
         </Button>
