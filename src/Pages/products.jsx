@@ -1,15 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import CardProduct from "../components/Fragments/CardProduct";
-import Button from "../components/Elements/Button/Index";
 import { getProducts } from "../services/product.service";
-import { getUsername } from "../services/auth.service";
 import { useLogin } from "../hooks/useLogin";
+import TableCart from "../components/Fragments/TableCart";
+import Navbar from "../components/Layouts/Navbar";
 
 const ProductPage = () => {
-  const [cart, setCart] = useState([]);
-  const [totalPrice, setTotalPrice] = useState(0);
   const [products, setProducts] = useState([]);
-  const username = useLogin();
+  useLogin();
 
   // pemanggilan api
   useEffect(() => {
@@ -18,60 +16,9 @@ const ProductPage = () => {
     });
   }, []);
 
-  useEffect(() => {
-    // setCart(JSON.parse(localStorage.getItem("cart")) || []);
-    setCart(JSON.parse(localStorage.getItem("cart")) || []);
-  }, []);
-
-  // melihat perubahan pada cart/ lifecycle update
-  useEffect(() => {
-    if (products.length > 0 && cart.length > 0) {
-      const sum = cart.reduce((acc, item) => {
-        const product = products.find((product) => product.id === item.id);
-        return acc + product.price * item.qty;
-      }, 0);
-      setTotalPrice(sum);
-      localStorage.setItem("cart", JSON.stringify(cart));
-    }
-  }, [cart, products]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-  };
-
-  const handleToCart = (id) => {
-    if (cart.find((item) => item.id === id)) {
-      setCart(
-        cart.map((item) =>
-          item.id === id ? { ...item, qty: item.qty + 1 } : item
-        )
-      );
-    } else {
-      setCart([...cart, { id, qty: 1 }]);
-    }
-  };
-
-  // useReff
-  const cartReff = useRef(JSON.parse(localStorage.getItem("cart")) || "[]");
-
-  const totalPriceRef = useRef(null);
-  useEffect(() => {
-    if (cart.length > 0) {
-      totalPriceRef.current.style.display = "table-row";
-    } else {
-      totalPriceRef.current.style.display = "none";
-    }
-  }, [cart]);
-
   return (
     <>
-      <div className="flex justify-end w-full h-16 bg-blue-400 text-white items-center px-10">
-        {username}
-        <Button classname="ml-5 bg-black" onClick={handleLogout}>
-          Logout
-        </Button>
-      </div>
+      <Navbar />
       <div className="flex justify-center py-5">
         <div className="w-4/6 flex flex-wrap">
           {products.length > 0 &&
@@ -81,66 +28,13 @@ const ProductPage = () => {
                 <CardProduct.Body name={product.title}>
                   {product.description}
                 </CardProduct.Body>
-                <CardProduct.Footer
-                  price={product.price}
-                  id={product.id}
-                  addToCart={handleToCart}
-                />
+                <CardProduct.Footer price={product.price} id={product.id} />
               </CardProduct>
             ))}
         </div>
         <div className="w-2/6">
           <h1 className="text-3xl font-bold text-blue-600 ml-4 mb-3">Cart</h1>
-          <table className="text-left table-auto border-separate border-spacing-x-5">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.length > 0 &&
-                cart.map((item) => {
-                  const product = products.find(
-                    (product) => product.id === item.id
-                  );
-                  return (
-                    <tr key={item.id}>
-                      <td>{product.title.substring(0, 20)}...</td>
-                      <td>
-                        {product.price.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                        })}
-                      </td>
-                      <td>{item.qty}</td>
-                      <td>
-                        {" "}
-                        {(item.qty * product.price).toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                        })}
-                      </td>
-                    </tr>
-                  );
-                })}
-              <tr ref={totalPriceRef}>
-                <td colSpan={3}>
-                  <b>Total Price</b>
-                </td>
-                <td>
-                  <b>
-                    {totalPrice.toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    })}
-                  </b>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <TableCart products={products} />
         </div>
       </div>
     </>
